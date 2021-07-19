@@ -56,6 +56,15 @@ def getSourceDownloadURL(package_identifier):
     }[getServerAPI()].format(package_identifier)
 
 
+def _render_error_page(error_code, error_message):
+    return flask.render_template(
+        'download_40x.html', error_code=error_code, error_title={
+            400: "Bad Request",
+            404: "Not Found"
+        }[error_code], error_message=error_message
+    )
+
+
 @app.route('/')
 def downloadPage():
     """Render download page .
@@ -70,7 +79,7 @@ def downloadPage():
         return flask.render_template('download.html', R=allRecords, download_stats_url=download_stats_url)
 
     if error_code in (400, 404):
-        return flask.render_template('{0}.html'.format(error_code), error_message=error_message), error_code
+        return _render_error_page(error_code, error_message), error_code
 
     flask.abort(error_code)
 
@@ -104,7 +113,7 @@ def redirectToLocalBitstream():
         return flask.redirect(record['download_url'])
 
     if error_code in (400, 404):
-        return flask.render_template('{0}.html'.format(error_code), error_message=error_message), error_code
+        return _render_error_page(error_code, error_message), error_code
 
     flask.abort(error_code)
 
@@ -126,7 +135,7 @@ def recordFindRequest():
         return json.dumps(record)
 
     if error_code in (400, 404):
-        return flask.render_template('{0}.html'.format(error_code), error_message=error_message), error_code
+        return _render_error_page(error_code, error_message), error_code
 
     flask.abort(error_code)
 
@@ -144,7 +153,7 @@ def recordFindAllRequest():
         return json.dumps(allRecords)
 
     if error_code in (400, 404):
-        return flask.render_template('{0}.html'.format(error_code), error_message=error_message), error_code
+        return _render_error_page(error_code, error_message), error_code
 
     flask.abort(error_code)
 
