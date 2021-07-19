@@ -33,7 +33,7 @@ MODE_CHOICES = (
 
 LOCAL_BITSTREAM_PATH = '/bitstream'
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, static_url_path='/')
 app.config.from_envvar('SLICER_DOWNLOAD_SERVER_CONF')
 
 
