@@ -48,7 +48,6 @@ SLICER_DOWNLOAD_SERVER_API=$(PYTHONPATH=${ROOT_DIR} ${PYTHON_EXECUTABLE} -c "imp
 SLICER_DOWNLOAD_DB_FILE=$(PYTHONPATH=${ROOT_DIR} ${PYTHON_EXECUTABLE} -c "import slicer_download_server as sds; print(sds.dbFilePath())")
 SLICER_DOWNLOAD_STATS_DB_FILE="${ROOT_DIR}/var/download-stats.sqlite"
 SLICER_DOWNLOAD_STATS_DATA_FILE="${ROOT_DIR}/var/slicer-download-data.json"
-GITHUB_RELEASE_EXECUTABLE=${script_dir}/github-release
 
 # Display summary
 echo
@@ -67,39 +66,12 @@ echo "  ROOT_DIR        : ${ROOT_DIR}"
 echo "  BACKUP_WORK_DIR : ${BACKUP_WORK_DIR}"
 echo
 echo "[backup_database] Using these executables"
-echo "  GITHUB_RELEASE_EXECUTABLE : ${GITHUB_RELEASE_EXECUTABLE}"
 echo "  PYTHON_EXECUTABLE         : ${PYTHON_EXECUTABLE}"
 
 #
 # Download github-release executable
 #
-executable_name=linux-amd64-github-release
-filename=${executable_name}.bz2
-url=https://github.com/github-release/github-release/releases/download/v0.10.0/${filename}
-sha256=b360af98188c5988314d672bb604efd1e99daae3abfb64d04051ee17c77f84b6
-
-echo
-if [[ ! -f ${script_dir}/${filename} ]]; then
-  echo "[backup_database] Downloading ${filename}"
-  curl -o ${script_dir}/${filename} -# -SL ${url}
-else
-  echo "[backup_database] Skipping download: Found ${filename}"
-fi
-
-echo
-echo "[backup_database] Checking"
-echo "${sha256}  ${script_dir}/${filename}" > ${script_dir}/${filename}.sha256
-sha256sum -c ${script_dir}/${filename}.sha256
-rm -f ${script_dir}/${filename}.sha256
-
-echo
-echo "[backup_database] Extracting"
-bunzip2 -f ${script_dir}/${filename} -c > ${GITHUB_RELEASE_EXECUTABLE}
-chmod u+x ${GITHUB_RELEASE_EXECUTABLE}
-
-echo
-echo "[backup_database] Executing"
-${GITHUB_RELEASE_EXECUTABLE} --version
+source ${script_dir}/download-github-release-executable.sh
 
 
 #
