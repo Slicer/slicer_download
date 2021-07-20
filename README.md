@@ -63,5 +63,7 @@ It is covered by the Apache License, Version 2.0:
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-The license file was added at revision 1b53566 on 2021-07-14, but you may
+The license file was added at revision [24bfe91][24bfe91] on 2021-07-20, but you may
 consider that the license applies to all prior revisions as well.
+
+[24bfe91]: https://github.com/Slicer/slicer_download/commit/24bfe91574221f90122415cda5d5d0c4177a2e45
