@@ -61,7 +61,7 @@ In July 2021, the production server was migrated to a server hosted and maintain
 
 It is covered by the Apache License, Version 2.0:
 
-http://www.apache.org/licenses/LICENSE-2.0
+https://www.apache.org/licenses/LICENSE-2.0
 
 The license file was added at revision [24bfe91][24bfe91] on 2021-07-20, but you may
 consider that the license applies to all prior revisions as well.
