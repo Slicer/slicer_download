@@ -9,6 +9,10 @@ bin/github-release
 bin/linux-amd64-github-release.bz2
 etc/fallback/*
 !etc/fallback/.keep
+slicer_download_server/assets/*
+!slicer_download_server/assets/.keep
+slicer_download_server/templates/*
+!slicer_download_server/templates/.keep
 var/*
 !var/.keep
 
