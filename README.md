@@ -52,9 +52,10 @@ In 2014, Mike Halle added source code to GitHub (see archive [here](https://gith
 
 In December 2020, Mike transitioned the hosting from WebFaction to opalstack.
 
-Then, in May 2021, J-Christophhe Fillion-Robin ([@jcfr](https://github.com/jcfr), Kitware) worked with Mike to transition the GitHub project to its current [home](https://github.com/Slicer/slicer_download). J-Christophe also updated the implementation so that it can be deployed in arbitrary environments and added support to integrate with the new backend infrastructure built on Girder for managing Slicer application and extension packages.
+Then, in May 2021, Jean-Christophe Fillion-Robin ([@jcfr](https://github.com/jcfr), Kitware) worked with Mike to transition the GitHub project to its current [home](https://github.com/Slicer/slicer_download). J-Christophe also updated the implementation so that it can be deployed in arbitrary environments and added support to integrate with the new backend infrastructure built on Girder for managing Slicer application and extension packages.
 
-In July 2021, the production server was migrated to a server hosted and maintained by Kitware.
+In July 2021, the production server was migrated to a server hosted and maintained by Kitware. Additionally, the landing page
+was updated to match the style of the `slicer.org` website.
 
 
 ## License
