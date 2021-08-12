@@ -31,10 +31,13 @@ This section desribes main files and directories available in this repository.
     | `backup-databases.sh`             | Archive databases as release assets associated with the [Slicer/slicer_download_database_backups](https://github.com/Slicer/slicer_download_database_backups/releases/tag/database-backups) private repository. |
     | `cron-getbuildinfo.sh`            | Invoke `etc/slicer_getbuildinfo` python application. |
     | `cron-parselogs.sh`               | Invoke `etc/slicer_parselogs` python application. |
+    | `download-flask-templates-and-assets.sh` | Download up-to-date flask templates from [Slicer/slicer.org@download-slicer-org][branch-download-slicer-org] branch. |
     | `geoipupdate`                     | Download GeoIP Binary Databases into `etc/geoip/db` directory. |
     | `kill`                            | Shell script for killing the download Flask web application. |
     | `start`                           | Shell script for starting the download Flask web application. |
     | `stop`                            | Shell script for stopping the download Flask web application. |
+
+[branch-download-slicer-org]: https://github.com/Slicer/slicer.org/tree/download-slicer-org
 
 * [etc](https://github.com/Slicer/slicer_download/tree/main/etc)
 
