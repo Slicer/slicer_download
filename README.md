@@ -1,5 +1,7 @@
 # Slicer Download
 
+Site for listing the installers associated with the latest Stable and Preview Slicer releases.
+
 ## Current deployments
 
 _The following deployments are hosted and maintained by Kitware._
@@ -11,7 +13,7 @@ _The following deployments are hosted and maintained by Kitware._
 
 ## Repository layout
 
-This section desribes main files and directories available in this repository.
+This section describes main files and directories available in this repository.
 
 * [slicer_download_server](https://github.com/Slicer/slicer_download/tree/main/slicer_download_server)
 
@@ -31,6 +33,7 @@ This section desribes main files and directories available in this repository.
     | `backup-databases.sh`             | Archive databases as release assets associated with the [Slicer/slicer_download_database_backups](https://github.com/Slicer/slicer_download_database_backups/releases/tag/database-backups) private repository. |
     | `cron-getbuildinfo.sh`            | Invoke `etc/slicer_getbuildinfo` python application. |
     | `cron-parselogs.sh`               | Invoke `etc/slicer_parselogs` python application. |
+    | `download-fallback-databases.sh` | Download latest database backups from [database-backups][https://github.com/Slicer/slicer_download_database_backups/releases/tag/database-backups] release associated with `Slicer/slicer_download_database_backups` repository. |
     | `download-flask-templates-and-assets.sh` | Download up-to-date flask templates from [Slicer/slicer.org@download-slicer-org][branch-download-slicer-org] branch. |
     | `geoipupdate`                     | Download GeoIP Binary Databases into `etc/geoip/db` directory. |
     | `kill`                            | Shell script for killing the download Flask web application. |
@@ -46,6 +49,45 @@ This section desribes main files and directories available in this repository.
     | `slicer_getbuildinfo`  | Python application for retrieving application package information from https://slicer-packages.kitware.com/ and creating `slicer-girder-records.sqlite` file.
     | `slicer_parselogs`     | Python application for parsing Nginx access logs, updating `download-stats.sqlite` and generating `slicer-download-data.json` |
 
+## Getting started with development
+
+1. Create a virtual environment and install prerequisites
+
+  ```
+  cd slicer_download
+  python -m venv env
+  ./env/bin/python -m pip install -r requirements.txt -r requirements-dev.txt
+  ```
+
+2. Download up-to-date flask templates from [Slicer/slicer.org@download-slicer-org][branch-download-slicer-org] branch.
+
+
+  ```
+  ./bin/download-flask-templates-and-assets.sh
+  ```
+
+3. If it applies, post a message on the 3D Slicer forum requesting access to https://github.com/Slicer/slicer_download_database_backups
+
+  Go to https://discourse.slicer.org
+
+4. Download latest database backups from [database-backups][https://github.com/Slicer/slicer_download_database_backups/releases/tag/database-backups] release associated with `Slicer/slicer_download_database_backups` repository.
+
+  ```
+  export SLICER_BACKUP_DATABASE_GITHUB_TOKEN=ghp_abcdefghijklmnopqrstuvwxyz0123456789
+  ./bin/download-fallback-databases.sh
+  ```
+
+5. Setup startup environment
+
+  ```
+  echo "export SLICER_DOWNLOAD_DB_FALLBACK=True" >> ./bin/.start_environment
+  ```
+
+6. Start the server
+
+  ```
+  ./bin/start
+  ```
 
 ## History
 
