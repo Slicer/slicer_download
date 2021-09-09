@@ -43,12 +43,13 @@ echo "[download_flask_templates_and_assets] Downloading ${FILENAME}"
 rm -f
 curl -o ${TEMP_DIR}/${FILENAME} -# -SL ${DOWNLOAD_URL}
 
-site_dir=${TEMP_DIR}/slicer.org-${BRANCH}
-
 # Extracting
 echo
 echo "[download_flask_templates_and_assets] Extracting ${FILENAME}"
 unzip -d ${TEMP_DIR}/ ${TEMP_DIR}/${FILENAME}
+
+# Extracted directory is specific to the downloaded archive
+site_dir=${TEMP_DIR}/slicer.org-${BRANCH}
 
 # Clear target directories
 echo
