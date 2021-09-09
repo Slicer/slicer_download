@@ -59,9 +59,9 @@ fi
 echo
 ${UWSGI_EXECUTABLE} \
   --ini ${ROOT_DIR}/etc/uwsgi.ini \
+  --pidfile ${PIDFILE} \
   --set-placeholder root_dir=${ROOT_DIR} \
   --set-placeholder log_dir=${APP_LOG_DIR} \
-  --set-placeholder tmp_dir=${TMP_DIR} \
   --set-placeholder virtualenv_dir=${VIRTUALENV_DIR} \
   --set-placeholder http_port=${HTTP_PORT}
 
