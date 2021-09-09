@@ -18,5 +18,5 @@ if [ -e "${PIDFILE}" ] && (ps -u $(whoami) -opid= |
   exit 0
 fi
 
-echo "No PID file"
+echo "Not running"
 exit 99
