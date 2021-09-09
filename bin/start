@@ -83,3 +83,17 @@ echo "  APP_LOG_DIR    : ${APP_LOG_DIR}"
 echo "  TMP_DIR        : ${TMP_DIR}"
 echo "  VIRTUALENV_DIR : ${VIRTUALENV_DIR}"
 echo "  PIDFILE        : ${PIDFILE}"
+
+if [[ ! -e "${PIDFILE}" ]] || ! (ps -u $(whoami) -opid= |
+                           grep -P "^\s*$(cat ${PIDFILE})$" &> /dev/null); then
+  echo ""
+  echo "Failed to start server."
+
+  echo ""
+  tail -n2 ${APP_LOG_DIR}/uwsgi.log
+
+  echo ""
+  echo "For more details, see ${APP_LOG_DIR}/uwsgi.log"
+
+  exit 99
+fi
