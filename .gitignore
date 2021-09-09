@@ -66,6 +66,3 @@ Thumbs.db
 
 venv
 .vscode
-=======
-*.pyc
-.DS_Store
