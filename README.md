@@ -53,41 +53,41 @@ This section describes main files and directories available in this repository.
 
 1. Create a virtual environment and install prerequisites
 
-  ```
-  cd slicer_download
-  python -m venv env
-  ./env/bin/python -m pip install -r requirements.txt -r requirements-dev.txt
-  ```
+    ```
+    cd slicer_download
+    python -m venv env
+    ./env/bin/python -m pip install -r requirements.txt -r requirements-dev.txt
+    ```
 
 2. Download up-to-date flask templates from [Slicer/slicer.org@download-slicer-org][branch-download-slicer-org] branch.
 
 
-  ```
-  ./bin/download-flask-templates-and-assets.sh
-  ```
+    ```
+    ./bin/download-flask-templates-and-assets.sh
+    ```
 
 3. If it applies, post a message on the 3D Slicer forum requesting access to https://github.com/Slicer/slicer_download_database_backups
 
-  Go to https://discourse.slicer.org
+    Go to https://discourse.slicer.org
 
 4. Download latest database backups from [database-backups][https://github.com/Slicer/slicer_download_database_backups/releases/tag/database-backups] release associated with `Slicer/slicer_download_database_backups` repository.
 
-  ```
-  export SLICER_BACKUP_DATABASE_GITHUB_TOKEN=ghp_abcdefghijklmnopqrstuvwxyz0123456789
-  ./bin/download-fallback-databases.sh
-  ```
+    ```
+    export SLICER_BACKUP_DATABASE_GITHUB_TOKEN=ghp_abcdefghijklmnopqrstuvwxyz0123456789
+    ./bin/download-fallback-databases.sh
+    ```
 
 5. Setup startup environment
 
-  ```
-  echo "export SLICER_DOWNLOAD_DB_FALLBACK=True" >> ./bin/.start_environment
-  ```
+    ```
+    echo "export SLICER_DOWNLOAD_DB_FALLBACK=True" >> ./bin/.start_environment
+    ```
 
 6. Start the server
 
-  ```
-  ./bin/start
-  ```
+    ```
+    ./bin/start
+    ```
 
 ## History
 
