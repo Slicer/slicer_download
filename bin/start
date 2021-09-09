@@ -84,6 +84,8 @@ echo "  TMP_DIR        : ${TMP_DIR}"
 echo "  VIRTUALENV_DIR : ${VIRTUALENV_DIR}"
 echo "  PIDFILE        : ${PIDFILE}"
 
+sleep 0.5
+
 if [[ ! -e "${PIDFILE}" ]] || ! (ps -u $(whoami) -opid= |
                            grep -P "^\s*$(cat ${PIDFILE})$" &> /dev/null); then
   echo ""
