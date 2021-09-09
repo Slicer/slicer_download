@@ -89,6 +89,20 @@ This section describes main files and directories available in this repository.
     ./bin/start
     ```
 
+## Startup environment
+
+These variables may be exported in the file `./bin/.start_environment` to customize environment
+associated with the `./bin/start` script.
+
+| Variable Name | Description | Default |
+|---------------|-------------|---------|
+| `HTTP_PORT` | Port associated with `SLICER_DOWNLOAD_HOSTNAME`. | `53683` |
+| `SLICER_DOWNLOAD_DEBUG` | If `True`, show unhandled exceptions and reload server when code changes. For more details, see [here](https://flask.palletsprojects.com/en/2.0.x/config/#DEBUG). | `False` |
+| `SLICER_DOWNLOAD_DB_FALLBACK` | If `True`, lookup the fallback database. | `False` |
+| `SLICER_DOWNLOAD_DB_FILE` | Path to the database file containing download records. | `./var/slicer-<server_api>-records.sqlite` or `./etc/fallback/slicer-<SLICER_DOWNLOAD_SERVER_API>-records.sqlite` if `SLICER_DOWNLOAD_DB_FALLBACK` is `True`. |
+| `SLICER_DOWNLOAD_HOSTNAME` | URL of the Slicer download server. | `http://127.0.0.1:<HTTP_PORT>` |
+| `SLICER_DOWNLOAD_SERVER_API` | Supported values are `Girder_v1` or `Midas_v1`. | `Midas_v1` |
+
 ## History
 
 The original implementation was created by Mike Halle ([@mhalle](https://github.com/mhalle), BWH) in 2011 and hosted on a server maintained within the Surgical Planning Laboratory (SPL) at Harvard University.
