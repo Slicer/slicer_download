@@ -72,7 +72,7 @@ def downloadPage():
     See :func:`recordsMatchingAllOSAndStability`.
     """
     allRecords, error_message, error_code = recordsMatchingAllOSAndStability()
-    download_host_url = os.environ.get('SLICER_DOWNLOAD_HOSTNAME', flask.request.host_url).strip('/')
+    download_host_url = os.environ.get('SLICER_DOWNLOAD_URL', flask.request.host_url).strip('/')
     download_stats_url = '/'.join([download_host_url, 'download-stats'])
 
     if allRecords:

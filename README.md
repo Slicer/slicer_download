@@ -101,7 +101,7 @@ associated with the `./bin/start` script.
 | `SLICER_DOWNLOAD_DEBUG` | If `True`, show unhandled exceptions and reload server when code changes. For more details, see [here](https://flask.palletsprojects.com/en/2.0.x/config/#DEBUG). | `False` |
 | `SLICER_DOWNLOAD_DB_FALLBACK` | If `True`, lookup the fallback database. | `False` |
 | `SLICER_DOWNLOAD_DB_FILE` | Path to the database file containing download records. | `./var/slicer-<server_api>-records.sqlite` or `./etc/fallback/slicer-<SLICER_DOWNLOAD_SERVER_API>-records.sqlite` if `SLICER_DOWNLOAD_DB_FALLBACK` is `True`. |
-| `SLICER_DOWNLOAD_HOSTNAME` | URL of the Slicer download server. | `http://${UWSGI_HTTP_HOST}:<UWSGI_HTTP_PORT>` |
+| `SLICER_DOWNLOAD_URL` | URL of the Slicer download server. | `http://${UWSGI_HTTP_HOST}:<UWSGI_HTTP_PORT>` |
 | `SLICER_DOWNLOAD_SERVER_API` | Supported values are `Girder_v1` or `Midas_v1`. | `Midas_v1` |
 
 ## History
