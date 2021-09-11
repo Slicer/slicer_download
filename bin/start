@@ -37,11 +37,12 @@ APP_LOG_DIR=${APP_LOG_DIR:-$(realpath -m "${ROOT_DIR}/../logs/apps/slicer_downlo
 mkdir -p ${APP_LOG_DIR}
 
 export SLICER_DOWNLOAD_SERVER_CONF="${SLICER_DOWNLOAD_SERVER_CONF:-${ROOT_DIR}/etc/conf/config.py}"
+UWSGI_HTTP_HOST="${UWSGI_HTTP_HOST:-127.0.0.1}"
 UWSGI_HTTP_PORT="${UWSGI_HTTP_PORT:-53683}"
 SLICER_DOWNLOAD_DB_FALLBACK=$(PYTHONPATH=${ROOT_DIR} ${PYTHON_EXECUTABLE} -c "import slicer_download_server as sds; print(sds.app.config['DB_FALLBACK'])")
 SLICER_DOWNLOAD_DB_FILE=$(PYTHONPATH=${ROOT_DIR} ${PYTHON_EXECUTABLE} -c "import slicer_download_server as sds; print(sds.dbFilePath())")
 SLICER_DOWNLOAD_DEBUG=$(PYTHONPATH=${ROOT_DIR} ${PYTHON_EXECUTABLE} -c "import slicer_download_server as sds; print(sds.app.config['DEBUG'])")
-SLICER_DOWNLOAD_HOSTNAME="${SLICER_DOWNLOAD_HOSTNAME:-http://127.0.0.1:${UWSGI_HTTP_PORT}}"
+SLICER_DOWNLOAD_HOSTNAME="${SLICER_DOWNLOAD_HOSTNAME:-http://${UWSGI_HTTP_HOST}:${UWSGI_HTTP_PORT}}"
 SLICER_DOWNLOAD_SERVER_API=$(PYTHONPATH=${ROOT_DIR} ${PYTHON_EXECUTABLE} -c "import slicer_download as sd; print(sd.getServerAPI().name)")
 
 # Sanity checks
@@ -63,6 +64,7 @@ ${UWSGI_EXECUTABLE} \
   --set-placeholder root_dir=${ROOT_DIR} \
   --set-placeholder log_dir=${APP_LOG_DIR} \
   --set-placeholder virtualenv_dir=${VIRTUALENV_DIR} \
+  --set-placeholder http_host=${UWSGI_HTTP_HOST} \
   --set-placeholder http_port=${UWSGI_HTTP_PORT}
 
 # Display summary
@@ -72,6 +74,7 @@ echo "  SLICER_DOWNLOAD_SERVER_CONF: ${SLICER_DOWNLOAD_SERVER_CONF}"
 echo "  SLICER_DOWNLOAD_DB_FALLBACK: ${SLICER_DOWNLOAD_DB_FALLBACK}"
 echo "  SLICER_DOWNLOAD_DB_FILE    : ${SLICER_DOWNLOAD_DB_FILE}"
 echo "  SLICER_DOWNLOAD_DEBUG      : ${SLICER_DOWNLOAD_DEBUG}"
+echo "  UWSGI_HTTP_HOST            : ${UWSGI_HTTP_HOST}"
 echo "  UWSGI_HTTP_PORT            : ${UWSGI_HTTP_PORT}"
 echo "  SLICER_DOWNLOAD_HOSTNAME   : ${SLICER_DOWNLOAD_HOSTNAME}"
 echo "  SLICER_DOWNLOAD_SERVER_API : ${SLICER_DOWNLOAD_SERVER_API}"
