@@ -70,12 +70,13 @@ This section describes main files and directories available in this repository.
 
     Go to https://discourse.slicer.org
 
-4. Download latest database backups from [database-backups][https://github.com/Slicer/slicer_download_database_backups/releases/tag/database-backups] release associated with `Slicer/slicer_download_database_backups` repository.
+4. Download latest database backups from [database-backups](https://github.com/Slicer/slicer_download_database_backups/releases/tag/database-backups) release associated with `Slicer/slicer_download_database_backups` repository.
 
     ```
     export SLICER_BACKUP_DATABASE_GITHUB_TOKEN=ghp_abcdefghijklmnopqrstuvwxyz0123456789
     ./bin/download-fallback-databases.sh
     ```
+    _:warning: GitHub token specified in the previous command is a placeholder that should be replaced with a valid one._
 
 5. Setup startup environment
 
