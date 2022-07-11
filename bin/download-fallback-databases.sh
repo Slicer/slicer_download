@@ -7,9 +7,9 @@ script_dir=$(cd $(dirname $0) || exit 1; pwd)
 ROOT_DIR=$(realpath "${script_dir}/..")
 FALLBACK_DIR=${ROOT_DIR}/etc/fallback
 
-VERSION=2021.06.23
-GIRDER_SHA256=a8aa2b52e022fdee2f0ca8b882fd7744f622dad9a85e4f3c1792ca5bdd915ed3
-MIDAS_SHA256=39569792b939c270ad1e21e9e35f74da2490e10b59a2b507ad63cf551550a920
+VERSION=2022.07.11
+GIRDER_SHA256=871002b6fdb5d9263a12cabc9b39d66e20e8aaa45570f73ba84f84531f64d759
+MIDAS_SHA256=NA
 
 DATABASE_BACKUPS_GITHUB_REPO=slicer_download_database_backups
 
@@ -35,7 +35,17 @@ mkdir -p ${FALLBACK_DIR}
 
 for server_api in girder midas; do
 
+  sha5256_varname=${server_api^^}_SHA256
+  sha256=${!sha5256_varname}
+
   filename=slicer-${server_api}-records.sqlite
+
+  if [[ $sha256 == "NA" ]]; then
+    echo
+    echo "[download_fallback_databases] Skipping ${VERSION}_${filename} download: SHA256 not specified"
+    continue
+  fi
+
   echo
   echo "[download_fallback_databases] Downloading ${filename}"
   ${GITHUB_RELEASE_EXECUTABLE} \
@@ -46,8 +56,6 @@ for server_api in girder midas; do
       --tag database-backups \
       --name ${VERSION}_${filename} > ${FALLBACK_DIR}/${filename}
 
-  sha5256_varname=${server_api^^}_SHA256
-  sha256=${!sha5256_varname}
   echo
   echo "[download_fallback_databases] Checking"
   echo "${sha256}  ${FALLBACK_DIR}/${filename}" > ${FALLBACK_DIR}/${filename}.sha256
