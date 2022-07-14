@@ -50,9 +50,16 @@ def get_cleaned_up_record(record):
         }
 
     if getServerAPI() == ServerAPI.Girder_v1:
+        extension = {
+            "linux": ".tar.gz",
+            "macosx": ".dmg",
+            "win": ".exe",
+        }.get(record["meta"]["os"], "")
         return {
             'bitstream_id': record['_id'],
-            'filename': '',  # Not supported
+            'filename': (
+                f'{record["meta"]["baseName"]}-{record["meta"]["version"]}'
+                f'-{record["meta"]["os"]}-{record["meta"]["arch"]}{extension}'),
             'os': record['meta']['os'],
             'arch': record['meta']['arch'],
             'product_name': record['meta']['baseName'],
