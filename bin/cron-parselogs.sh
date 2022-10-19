@@ -9,9 +9,9 @@ VIRTUALENV_DIR=$(realpath -m "${ROOT_DIR}/env")
 PYTHON_EXECUTABLE=${VIRTUALENV_DIR}/bin/python
 
 # Customizing environment
-echo -n "[slicer_getbuildinfo] Looking for ${script_dir}/.start_environment "
-if [ -e "${script_dir}/.start_environment" ]; then
-  source "${script_dir}/.start_environment"
+echo -n "[slicer_getbuildinfo] Looking for ${ROOT_DIR}/bin/.start_environment "
+if [ -e "${ROOT_DIR}/bin/.start_environment" ]; then
+  source "${ROOT_DIR}/bin/.start_environment"
   echo "[ok]"
 else
   echo "[not found]"
