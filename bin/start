@@ -25,9 +25,9 @@ echo -n '[slicer_download] Started at '
 date "+%Y-%m-%d %H:%M:%S"
 
 # Customizing environment
-echo -n "[slicer_download] Looking for ${script_dir}/.start_environment "
-if [ -e "${script_dir}/.start_environment" ]; then
-  source "${script_dir}/.start_environment"
+echo -n "[slicer_download] Looking for ${ROOT_DIR}/bin/.start_environment "
+if [ -e "${ROOT_DIR}/bin/.start_environment" ]; then
+  source "${ROOT_DIR}/bin/.start_environment"
   echo "[ok]"
 else
   echo "[not found]"

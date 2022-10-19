@@ -11,9 +11,9 @@ PYTHON_EXECUTABLE=${VIRTUALENV_DIR}/bin/python
 DATABASE_BACKUPS_GITHUB_REPO=slicer_download_database_backups
 
 # Customizing environment
-echo -n "[backup_database] Looking for ${script_dir}/.start_environment "
-if [ -e "${script_dir}/.start_environment" ]; then
-  source "${script_dir}/.start_environment"
+echo -n "[backup_database] Looking for ${ROOT_DIR}/bin/.start_environment "
+if [ -e "${ROOT_DIR}/bin/.start_environment" ]; then
+  source "${ROOT_DIR}/bin/.start_environment"
   echo "[ok]"
 else
   echo "[not found]"
@@ -71,7 +71,7 @@ echo "  PYTHON_EXECUTABLE         : ${PYTHON_EXECUTABLE}"
 #
 # Download github-release executable
 #
-source ${script_dir}/download-github-release-executable.sh
+source ${ROOT_DIR}/bin/download-github-release-executable.sh
 
 
 #

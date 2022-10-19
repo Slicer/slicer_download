@@ -26,7 +26,7 @@ echo "  DATABASE_BACKUPS_GITHUB_REPO : ${DATABASE_BACKUPS_GITHUB_REPO}"
 #
 # Download github-release executable
 #
-source ${script_dir}/download-github-release-executable.sh
+source ${ROOT_DIR}/bin/download-github-release-executable.sh
 
 #
 # Download databases
