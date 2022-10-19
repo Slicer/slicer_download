@@ -16,6 +16,13 @@ from slicer_parselogs import (
 )
 
 
+def generate_slicer_stats(db, slicer_stats_data_file):
+    slicer_stats_data = slicerstats.get_download_stats_data(db)
+    with open(slicer_stats_data_file, 'w+') as statsfp:
+        print('writing %s' % slicer_stats_data_file)
+        json.dump(slicer_stats_data, statsfp, separators=(',', ':'), indent=2)
+
+
 def main():
     argparser = argparse.ArgumentParser(description='Process Slicer4 download information.')
     argparser.add_argument('--db', required=True, help="sqlite stats database")
@@ -46,10 +53,7 @@ def main():
             bitstream.add_bitstream_info(db, getRecordsFromURL())
 
         # then write out slicer json
-        slicer_stats_data = slicerstats.get_download_stats_data(db)
-        with open(statsdata, 'w+') as statsfp:
-            print('writing %s' % statsdata)
-            json.dump(slicer_stats_data, statsfp, separators=(',', ':'))
+        generate_slicer_stats(db, statsdata)
 
     sys.exit(0)
 
