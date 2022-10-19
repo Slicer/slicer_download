@@ -28,7 +28,7 @@ def main():
     argparser.add_argument('--db', required=True, help="sqlite stats database")
     argparser.add_argument('--geoip', required=True, help="geoip data file")
     argparser.add_argument('--statsdata', required=True, help="slicer stats output")
-    argparser.add_argument('--nomidas', action='store_true', help="don't download midas data")
+    argparser.add_argument('--skip-records-fetch', action='store_true', help="skip fetching of records from packages server")
     argparser.add_argument('filenames', nargs="*")
     args = argparser.parse_args()
     dbname = args.db
@@ -49,7 +49,7 @@ def main():
         # each of these items depends on the access table
         geoip.add_geoip_info(db, geoip_filename)
         useragent.add_useragent_info(db)
-        if not args.nomidas:
+        if not args.skip_records_fetch:
             bitstream.add_bitstream_info(db, getRecordsFromURL())
 
         # then write out slicer json
