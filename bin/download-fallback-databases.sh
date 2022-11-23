@@ -7,8 +7,9 @@ script_dir=$(cd $(dirname $0) || exit 1; pwd)
 ROOT_DIR=$(realpath "${script_dir}/..")
 FALLBACK_DIR=${ROOT_DIR}/etc/fallback
 
-VERSION=2022.07.11
-GIRDER_SHA256=871002b6fdb5d9263a12cabc9b39d66e20e8aaa45570f73ba84f84531f64d759
+# slicer-(girder|midas)-records.sqlite
+VERSION=2022.11.23
+GIRDER_SHA256=f0cd84c3b307cf14b5371d6796577b7a0a39c0a838830dfd8a3788f899b958a9
 MIDAS_SHA256=NA
 
 DATABASE_BACKUPS_GITHUB_REPO=slicer_download_database_backups
