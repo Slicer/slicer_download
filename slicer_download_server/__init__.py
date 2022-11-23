@@ -404,6 +404,7 @@ def matchStability(stability):
 VersionWithDateRE = re.compile(r'^[A-z]+-([-\d.a-z]+)-(\d{4}-\d{2}-\d{2})')
 VersionRE = re.compile(r'^[A-z]+-([-\d.a-z]+)-(macosx|linux|win+)')
 VersionFullRE = re.compile(r'^([-\d.a-z]+)-(\d{4}-\d{2}-\d{2})')
+VersionXyzRE = re.compile(r'^(\d+\.\d+\.\d+)$')
 
 
 def getVersion(record):
@@ -419,7 +420,7 @@ def getVersion(record):
     first :const:`VersionWithDateRE` and then :const:`VersionRE`.
 
     For :const:`ServerAPI.Girder_v1`, extraction of the version is attempted using
-    first :const:`VersionFullRE`.
+    first :const:`VersionFullRE` and then :const:`VersionXyzRE`.
 
     If value associated with the selected key does not match any of the regular
     expressions, it returns ``None``.
@@ -436,6 +437,8 @@ def getVersion(record):
 
     elif getServerAPI() == ServerAPI.Girder_v1:
         match = VersionFullRE.match(record['meta']['version'])
+        if not match:
+            match = VersionXyzRE.match(record['meta']['version'])
 
     if not match:
         return None
