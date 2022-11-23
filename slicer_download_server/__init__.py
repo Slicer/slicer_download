@@ -132,7 +132,7 @@ def recordFindRequest():
     record, error_message, error_code = recordMatching()
 
     if record:
-        return json.dumps(record)
+        return record
 
     if error_code in (400, 404):
         return _render_error_page(error_code, error_message), error_code
@@ -150,7 +150,7 @@ def recordFindAllRequest():
     allRecords, error_message, error_code = recordsMatchingAllOSAndStability()
 
     if allRecords:
-        return json.dumps(allRecords)
+        return allRecords
 
     if error_code in (400, 404):
         return _render_error_page(error_code, error_message), error_code
