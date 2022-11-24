@@ -335,8 +335,15 @@ def recordsMatchingAllOSAndStability():
     if modeName not in getSupportedMode():
         return None, "unsupported mode: should be one of {0}".format(getSupportedMode()), 400
 
+    if "os" in request.args:
+        if request.args['os'] not in SUPPORTED_OS_CHOICES:
+            return None, 'unknown os "{0}": should be one of {1}'.format(request.args['os'], SUPPORTED_OS_CHOICES), 400
+        operatingSystems = [request.args['os']]
+    else:
+        operatingSystems = SUPPORTED_OS_CHOICES
+
     results = {}
-    for operatingSystem in SUPPORTED_OS_CHOICES:
+    for operatingSystem in operatingSystems:
         osResult = {}
         for stability in ('release', 'nightly'):
             record = getBestMatching(revisionRecords, operatingSystem, stability, modeName, value, offset)
