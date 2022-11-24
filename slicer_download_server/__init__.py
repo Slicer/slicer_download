@@ -145,7 +145,7 @@ def recordFindAllRequest():
     """Render as JSON document the list of matching records for all OS (see :const:`SUPPORTED_OS_CHOICES`)
     and stability (see :const:`STABILITY_CHOICES`)
 
-    See :func:`recordsMatchingAllOSAndStability` and :func:`recordMatching`.
+    See :func:`recordsMatchingAllOSAndStability` and :func:`getBestMatching`.
     """
     allRecords, error_message, error_code = recordsMatchingAllOSAndStability()
 
