@@ -76,3 +76,27 @@ def progress_end():
     if not sys.stdout.isatty():
         return
     print("")
+
+
+def toBool(val):
+    """
+    Coerce a string value to a bool. Meant to be used to parse HTTP
+    parameters, which are always sent as strings. The following string
+    values will be interpreted as True:
+
+      - ``'true'``
+      - ``'on'``
+      - ``'1'``
+      - ``'yes'``
+
+    All other strings will be interpreted as False. If the given param
+    is not passed at all, returns the value specified by the default arg.
+    This function is case-insensitive.
+
+    :param val: The value to coerce to a bool.
+    :type val: str
+    """
+    if isinstance(val, bool):
+        return val
+
+    return val.lower().strip() in ('true', 'on', '1', 'yes')

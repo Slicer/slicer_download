@@ -10,7 +10,8 @@ from itertools import groupby, islice
 from slicer_download import (
     getServerAPI,
     ServerAPI,
-    openDb
+    openDb,
+    toBool
 )
 
 SUPPORTED_OS_CHOICES = (
@@ -176,6 +177,8 @@ def getRecordField(record, key):
             return None  # Not supported
         elif key == 'release':
             return record['meta'].get('release', '')
+        elif key == 'pre_release':
+            return record['meta'].get('pre_release', 'False')
         elif key == 'submissiontype':
             return 'release' if record['meta'].get('release') else 'nightly'
         elif key == 'bitstream_id':
@@ -408,7 +411,7 @@ def matchStability(stability):
     if stability == 'nightly':
         return lambda record: getRecordField(record, 'submissiontype') == 'nightly'
     if stability == 'release':
-        return lambda record: getRecordField(record, 'release') != ""
+        return lambda record: getRecordField(record, 'release') != "" and not toBool(getRecordField(record, 'pre_release'))
 
     return lambda record: True
 
