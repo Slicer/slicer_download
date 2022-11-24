@@ -342,10 +342,17 @@ def recordsMatchingAllOSAndStability():
     else:
         operatingSystems = SUPPORTED_OS_CHOICES
 
+    if "stability" in request.args:
+        if request.args['stability'] not in STABILITY_CHOICES:
+            return None, "bad stability {0}: should be one of {1}".format(request.args['stability'], STABILITY_CHOICES), 400
+        stabilities = [request.args['stability']]
+    else:
+        stabilities = list(set(STABILITY_CHOICES) - set(['any']))
+
     results = {}
     for operatingSystem in operatingSystems:
         osResult = {}
-        for stability in ('release', 'nightly'):
+        for stability in stabilities:
             record = getBestMatching(revisionRecords, operatingSystem, stability, modeName, value, offset)
             osResult[stability] = getCleanedUpRecord(record)
         results[operatingSystem] = osResult
