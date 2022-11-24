@@ -256,6 +256,9 @@ def getMode():
     from ``flask.request``.
 
     If no mode parameter was found (see :const:`MODE_CHOICES`), it returns
+    ``"date", "9999-12-31"``.
+
+    If more than one mode parameter was found (see :const:`MODE_CHOICES`), it returns
     ``None, None``.
     """
     request = flask.request
