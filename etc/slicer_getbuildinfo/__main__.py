@@ -54,7 +54,7 @@ def main(dbfile):
                     record TEXT)'''.format(primary_key_type=primary_key_type))
 
         cursor = db.cursor()
-        cursor.executemany('''insert or ignore into _
+        cursor.executemany('''insert or replace into _
             (item_id, revision, checkout_date, build_date, record)
             values(?,?,?,?,?)''',
                            [_f for _f in (recordToDb(r) for r in records) if _f])
