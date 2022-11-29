@@ -43,4 +43,4 @@ echo "[slicer_getbuildinfo] Using these directories"
 echo "  ROOT_DIR       : ${ROOT_DIR}"
 
 echo
-PYTHONPATH=${ROOT_DIR} "${PYTHON_EXECUTABLE}" "${ROOT_DIR}/etc/slicer_getbuildinfo" ${SLICER_DOWNLOAD_DB_FILE}
+PYTHONPATH=${ROOT_DIR} "${PYTHON_EXECUTABLE}" "${ROOT_DIR}/etc/slicer_getbuildinfo" $* ${SLICER_DOWNLOAD_DB_FILE}
