@@ -102,6 +102,7 @@ def displayDuplicateDrafts(duplicates):
 def main():
     argparser = argparse.ArgumentParser(description="Download Slicer application package metadata and update sqlite database")
     argparser.add_argument("--display-duplicate-drafts", action="store_true", help="Display duplicate draft folders & items and exit")
+    argparser.add_argument("--remove-itemids", help="comma separated list of itemid to remove from the database")
     argparser.add_argument("dbfile", metavar="DB_FILE", nargs="?")
     args = argparser.parse_args()
     dbfile = args.dbfile
@@ -113,6 +114,13 @@ def main():
         duplicates = collectDuplicates(records)
         displayDuplicateDrafts(duplicates)
         sys.exit(0)
+
+    itemIdsToRemove = set()
+    if args.remove_itemids:
+        for itemId in args.remove_itemids.split(","):
+            if len(itemId) != 24:
+                argparser.error("ID of item to eclude is expected to be 24 characters")
+            itemIdsToRemove.add(itemId)
 
     if dbfile is None:
         argparser.error("No action requested, specify --display-duplicate-drafts or DB_FILE")
@@ -151,6 +159,21 @@ def main():
 
     print("Saved {0}".format(dbfile))
 
+    if len(itemIdsToRemove) > 0:
+        print("")
+        duplicatesByItemId = {}
+        for key, ids in collectDuplicates(records).items():
+            for itemId, _ in ids:
+                duplicatesByItemId[itemId] = key
+
+        with sqlite3.connect(dbfile) as db:
+            print(f"Removed {len(itemIdsToRemove)} rows")
+            for itemId in itemIdsToRemove:
+                db.execute("delete from _ where item_id=?", (itemId, ))
+                print(f"  {itemId} ({duplicatesByItemId[itemId]})")
+            db.commit()
+
+        print("Saved {0}".format(dbfile))
 
 if __name__ == '__main__':
     main()
