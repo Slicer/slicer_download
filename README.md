@@ -33,6 +33,7 @@ This section describes main files and directories available in this repository.
     | `backup-databases.sh`             | Archive databases as release assets associated with the [Slicer/slicer_download_database_backups](https://github.com/Slicer/slicer_download_database_backups/releases/tag/database-backups) private repository. |
     | `cron-getbuildinfo.sh`            | Invoke `etc/slicer_getbuildinfo` python application. |
     | `cron-parselogs.sh`               | Invoke `etc/slicer_parselogs` python application. |
+    | `display-duplicate-drafts.sh`     | Display duplicate draft folders & items from https://slicer-packages.kitware.com/. |
     | `download-fallback-databases.sh` | Download latest database backups from [database-backups][https://github.com/Slicer/slicer_download_database_backups/releases/tag/database-backups] release associated with `Slicer/slicer_download_database_backups` repository. |
     | `download-flask-templates-and-assets.sh` | Download up-to-date flask templates from [Slicer/slicer.org@download-slicer-org][branch-download-slicer-org] branch. |
     | `geoipupdate`                     | Download GeoIP Binary Databases into `etc/geoip/db` directory. |
