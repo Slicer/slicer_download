@@ -103,6 +103,7 @@ def main():
     argparser = argparse.ArgumentParser(description="Download Slicer application package metadata and update sqlite database")
     argparser.add_argument("--display-duplicate-drafts", action="store_true", help="Display duplicate draft folders & items and exit")
     argparser.add_argument("--remove-itemids", help="comma separated list of itemid to remove from the database")
+    argparser.add_argument("--skip-db-insert-or-update", action="store_true", help="skip database insert or update of rows")
     argparser.add_argument("dbfile", metavar="DB_FILE", nargs="?")
     args = argparser.parse_args()
     dbfile = args.dbfile
@@ -128,36 +129,37 @@ def main():
     records = getRecordsFromURL()
     print("Retrieved {0} records".format(len(records)))
 
-    primary_key_type = "INTEGER" if getServerAPI() == ServerAPI.Midas_v1 else "TEXT"
+    if not args.skip_db_insert_or_update:
+        primary_key_type = "INTEGER" if getServerAPI() == ServerAPI.Midas_v1 else "TEXT"
 
-    with sqlite3.connect(dbfile) as db:
-        print("")
-        db.execute('''create table if not exists
-        _(item_id {primary_key_type} primary key,
-                    revision INTEGER,
-                    checkout_date TEXT,
-                    build_date TEXT,
-                    record TEXT)'''.format(primary_key_type=primary_key_type))
+        with sqlite3.connect(dbfile) as db:
+            print("")
+            db.execute('''create table if not exists
+            _(item_id {primary_key_type} primary key,
+                        revision INTEGER,
+                        checkout_date TEXT,
+                        build_date TEXT,
+                        record TEXT)'''.format(primary_key_type=primary_key_type))
 
-        cursor = db.cursor()
-        cursor.execute("select count(*) from _")
-        numberOfRowsBefore = cursor.fetchone()[0]
+            cursor = db.cursor()
+            cursor.execute("select count(*) from _")
+            numberOfRowsBefore = cursor.fetchone()[0]
 
-        cursor = db.cursor()
-        cursor.executemany('''insert or replace into _
-            (item_id, revision, checkout_date, build_date, record)
-            values(?,?,?,?,?)''',
-                           [_f for _f in (recordToDb(r) for r in records) if _f])
+            cursor = db.cursor()
+            cursor.executemany('''insert or replace into _
+                (item_id, revision, checkout_date, build_date, record)
+                values(?,?,?,?,?)''',
+                            [_f for _f in (recordToDb(r) for r in records) if _f])
 
-        cursor = db.cursor()
-        cursor.execute("select count(*) from _")
-        numberOfRowsAfter = cursor.fetchone()[0]
+            cursor = db.cursor()
+            cursor.execute("select count(*) from _")
+            numberOfRowsAfter = cursor.fetchone()[0]
 
-        print(f"Added {numberOfRowsAfter - numberOfRowsBefore} rows")
+            print(f"Added {numberOfRowsAfter - numberOfRowsBefore} rows")
 
-        db.commit()
+            db.commit()
 
-    print("Saved {0}".format(dbfile))
+        print("Saved {0}".format(dbfile))
 
     if len(itemIdsToRemove) > 0:
         print("")
