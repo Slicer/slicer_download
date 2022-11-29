@@ -178,11 +178,15 @@ def main():
                 packagesByItemId[itemId] = key
 
         with sqlite3.connect(dbfile) as db:
-            print(f"Removed {len(itemIdsToRemove)} rows")
+            print(f"Removing {len(itemIdsToRemove)} rows")
             for itemId in itemIdsToRemove:
+                if itemId not in packagesByItemId:
+                    print(f"  {itemId} (not found)")
+                    continue
                 db.execute("delete from _ where item_id=?", (itemId, ))
                 print(f"  {itemId} ({packagesByItemId[itemId]})")
             db.commit()
+            print(f"Removed {db.total_changes} rows")
 
         print("Saved {0}".format(dbfile))
 
