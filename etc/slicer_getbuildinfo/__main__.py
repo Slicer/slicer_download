@@ -12,6 +12,13 @@ from slicer_download import (
 )
 
 
+def getRecordsFromDB(dbfile):
+    with sqlite3.connect(dbfile) as db:
+        cursor = db.cursor()
+        cursor.execute("select record from _")
+        return [json.loads(row[0]) for row in cursor.fetchall()]
+
+
 def midasRecordToDb(r):
     try:
         return [int(r['item_id']),
@@ -164,16 +171,17 @@ def main():
 
     if len(itemIdsToRemove) > 0:
         print("")
-        duplicatesByItemId = {}
-        for key, ids in collectDuplicates(records).items():
+        packages = applicationPackageToIDs(getRecordsFromDB(dbfile))
+        packagesByItemId = {}
+        for key, ids in packages.items():
             for itemId, _ in ids:
-                duplicatesByItemId[itemId] = key
+                packagesByItemId[itemId] = key
 
         with sqlite3.connect(dbfile) as db:
             print(f"Removed {len(itemIdsToRemove)} rows")
             for itemId in itemIdsToRemove:
                 db.execute("delete from _ where item_id=?", (itemId, ))
-                print(f"  {itemId} ({duplicatesByItemId[itemId]})")
+                print(f"  {itemId} ({packagesByItemId[itemId]})")
             db.commit()
 
         print("Saved {0}".format(dbfile))
