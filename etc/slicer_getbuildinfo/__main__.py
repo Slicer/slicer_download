@@ -1,7 +1,7 @@
+import argparse
 import json
 import sqlite3
 import sys
-import textwrap
 
 from slicer_download import (
     getServerAPI,
@@ -37,7 +37,12 @@ def recordToDb(r):
     }[getServerAPI()](r)
 
 
-def main(dbfile):
+
+def main():
+    argparser = argparse.ArgumentParser(description="Download Slicer application package metadata and update sqlite database")
+    argparser.add_argument("dbfile", metavar="DB_FILE")
+    args = argparser.parse_args()
+    dbfile = args.dbfile
 
     print("ServerAPI is {0}: {1}".format(getServerAPI().name, getServerAPIUrl()))
 
@@ -65,13 +70,4 @@ def main(dbfile):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print(textwrap.dedent("""
-        Usage: %s DB_FILE
-
-          Download Slicer application package metadata and update sqlite database
-
-        """ % sys.argv[0]), file=sys.stderr)
-        sys.exit(1)
-
-    main(sys.argv[1])
+    main()
