@@ -47,10 +47,12 @@ def main():
     print("ServerAPI is {0}: {1}".format(getServerAPI().name, getServerAPIUrl()))
 
     records = getRecordsFromURL()
+    print("Retrieved {0} records".format(len(records)))
 
     primary_key_type = "INTEGER" if getServerAPI() == ServerAPI.Midas_v1 else "TEXT"
 
     with sqlite3.connect(dbfile) as db:
+        print("")
         db.execute('''create table if not exists
         _(item_id {primary_key_type} primary key,
                     revision INTEGER,
@@ -59,13 +61,23 @@ def main():
                     record TEXT)'''.format(primary_key_type=primary_key_type))
 
         cursor = db.cursor()
+        cursor.execute("select count(*) from _")
+        numberOfRowsBefore = cursor.fetchone()[0]
+
+        cursor = db.cursor()
         cursor.executemany('''insert or replace into _
             (item_id, revision, checkout_date, build_date, record)
             values(?,?,?,?,?)''',
                            [_f for _f in (recordToDb(r) for r in records) if _f])
+
+        cursor = db.cursor()
+        cursor.execute("select count(*) from _")
+        numberOfRowsAfter = cursor.fetchone()[0]
+
+        print(f"Added {numberOfRowsAfter - numberOfRowsBefore} rows")
+
         db.commit()
 
-    print("Retrieved {0} records".format(len(records)))
     print("Saved {0}".format(dbfile))
 
 
