@@ -38,10 +38,9 @@ def recordToDb(r):
     }[getServerAPI()](r)
 
 
-def collectDuplicates(records):
-    """Return a dictionnary of ``<revision>-<os>-<arch>`` to folderIDs.
-
-    .. note:: Each ``<revision>-<os>-<arch>`` key may be associated with two or more folderIDs.
+def applicationPackageToIDs(records):
+    """Return a dictionnary of ``<revision>-<os>-<arch>`` (uniquely identifying an application package)
+    to list of ``(itemId, folderId)`` tuples.
     """
     assert getServerAPI() == ServerAPI.Girder_v1
     packages = {}
@@ -54,10 +53,10 @@ def collectDuplicates(records):
         else:
             packages[key].append((itemId, folderId))
 
-    return {key: item_ids for key, item_ids in packages.items() if len(item_ids) > 1}
+    return {key: item_ids for key, item_ids in packages.items()}
 
 
-def displayDuplicateDrafts(duplicates):
+def displayDuplicateDrafts(records):
     """Display table of duplicate ``<revision>-<os>-<arch>`` and correponding draft folder URLs
     and draft item IDS.
 
@@ -69,6 +68,9 @@ def displayDuplicateDrafts(duplicates):
     https://slicer-packages.kitware.com/api/v1/app/5f4474d0e1d8c75dfc705482/release?limit=0.
     """
     assert getServerAPI() == ServerAPI.Girder_v1
+
+    duplicates = {key: item_ids for key, item_ids in applicationPackageToIDs(records).items() if len(item_ids) > 1}
+
     if len(duplicates) == 0:
         print("")
         print("No duplicate identified")
@@ -112,8 +114,7 @@ def main():
 
     if args.display_duplicate_drafts:
         records = getRecordsFromURL()
-        duplicates = collectDuplicates(records)
-        displayDuplicateDrafts(duplicates)
+        displayDuplicateDrafts(getRecordsFromURL())
         sys.exit(0)
 
     itemIdsToRemove = set()
