@@ -23,6 +23,15 @@ else
   echo "[not found]"
 fi
 
+if [ -z "$SLICER_BACKUP_DATABASE_GITHUB_TOKEN" ]; then
+  backup_database_github_token_redacted="(empty)"
+elif [[ $SLICER_BACKUP_DATABASE_GITHUB_TOKEN =~ ^ghp_[a-zA-Z0-9]{36}$ ]]; then
+  backup_database_github_token_redacted="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+else
+  backup_database_github_token_redacted="(invalid)"
+  SLICER_BACKUP_DATABASE_GITHUB_TOKEN=""
+fi
+
 # Display summary
 echo
 echo "[download_fallback_databases] Settings"
@@ -32,6 +41,12 @@ echo "  MIDAS_SHA256   : ${MIDAS_SHA256}"
 echo "  ROOT_DIR       : ${ROOT_DIR}"
 echo "  FALLBACK_DIR   : ${FALLBACK_DIR}"
 echo "  DATABASE_BACKUPS_GITHUB_REPO : ${DATABASE_BACKUPS_GITHUB_REPO}"
+echo "  SLICER_BACKUP_DATABASE_GITHUB_TOKEN: ${backup_database_github_token_redacted}"
+if [ -z "$SLICER_BACKUP_DATABASE_GITHUB_TOKEN" ]; then
+  echo
+  echo "[download_fallback_databases] Aborting download: SLICER_BACKUP_DATABASE_GITHUB_TOKEN env. variable is either not set or invalid"
+  exit 1
+fi
 
 #
 # Download github-release executable
