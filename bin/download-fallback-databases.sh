@@ -14,6 +14,15 @@ MIDAS_SHA256=NA
 
 DATABASE_BACKUPS_GITHUB_REPO=slicer_download_database_backups
 
+# Customizing environment
+echo -n "[download_fallback_databases] Looking for ${ROOT_DIR}/bin/.start_environment "
+if [ -e "${ROOT_DIR}/bin/.start_environment" ]; then
+  source "${ROOT_DIR}/bin/.start_environment"
+  echo "[ok]"
+else
+  echo "[not found]"
+fi
+
 # Display summary
 echo
 echo "[download_fallback_databases] Settings"
