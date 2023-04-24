@@ -19,6 +19,15 @@ else
   echo "[not found]"
 fi
 
+if [ -z "$SLICER_BACKUP_DATABASE_GITHUB_TOKEN" ]; then
+  backup_database_github_token_redacted="(empty)"
+elif [[ $SLICER_BACKUP_DATABASE_GITHUB_TOKEN =~ ^ghp_[a-zA-Z0-9]{36}$ ]]; then
+  backup_database_github_token_redacted="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+else
+  backup_database_github_token_redacted="(invalid)"
+  SLICER_BACKUP_DATABASE_GITHUB_TOKEN=""
+fi
+
 # Backup working directory
 BACKUP_WORK_DIR=`mktemp -d -p "/tmp"`
 if [[ ! "${BACKUP_WORK_DIR}" || ! -d "${BACKUP_WORK_DIR}" ]]; then
@@ -55,6 +64,7 @@ echo "[backup_database] Using this config"
 echo "  SLICER_DOWNLOAD_SERVER_CONF     : ${SLICER_DOWNLOAD_SERVER_CONF}"
 echo "  SLICER_DOWNLOAD_SERVER_API      : ${SLICER_DOWNLOAD_SERVER_API}"
 echo "  DATABASE_BACKUPS_GITHUB_REPO    : ${DATABASE_BACKUPS_GITHUB_REPO}"
+echo "  SLICER_BACKUP_DATABASE_GITHUB_TOKEN : ${backup_database_github_token_redacted}"
 echo
 echo "[backup_database] Database files"
 echo "  SLICER_DOWNLOAD_DB_FILE         : ${SLICER_DOWNLOAD_DB_FILE}"
@@ -68,6 +78,12 @@ echo
 echo "[backup_database] Using these executables"
 echo "  PYTHON_EXECUTABLE         : ${PYTHON_EXECUTABLE}"
 
+
+if [ -z "$SLICER_BACKUP_DATABASE_GITHUB_TOKEN" ]; then
+  echo
+  echo "[backup_database] Aborting backup: SLICER_BACKUP_DATABASE_GITHUB_TOKEN env. variable is either not set or invalid"
+  exit 1
+fi
 #
 # Download github-release executable
 #
