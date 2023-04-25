@@ -75,14 +75,3 @@ do
   echo "  ${site_dir}/${template_filename} -> ${TEMPLATES_DIR}/${template_filename}"
   cp -r ${site_dir}/${template_filename} ${TEMPLATES_DIR}/${template_filename}
 done
-
-# Post process
-# - Replace "%7B%7B" and "%7D%7D" with "{{" and "}}". This is required because the plugin
-#   "jekyll-target-blank" systematically convert the content to html.
-echo
-echo "[download_flask_templates_and_assets] Postprocessing"
-for template_filename in ${TEMPLATES_FILENAMES};
-do
-  sed -i "s/%7B%7B/{{/g" "${TEMPLATES_DIR}/${template_filename}"
-  sed -i "s/%7D%7D/}}/g" "${TEMPLATES_DIR}/${template_filename}"
-done
