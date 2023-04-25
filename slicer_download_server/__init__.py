@@ -300,7 +300,11 @@ def recordMatching():
     if operatingSystem not in SUPPORTED_OS_CHOICES:
         return None, 'unknown os "{0}": should be one of {1}'.format(operatingSystem, SUPPORTED_OS_CHOICES), 400
 
-    offset = int(request.args.get('offset', '0'))
+    offset_arg = request.args.get('offset', '0')
+    try:
+        offset = int(offset_arg)
+    except ValueError:
+        return None, 'bad offset "{0}": should be specified as an integer'.format(offset_arg), 400
 
     modeName, value = getMode()
     if modeName is None:
@@ -330,7 +334,11 @@ def recordsMatchingAllOSAndStability():
     request = flask.request
     revisionRecords = getRecordsFromDb()
 
-    offset = int(request.args.get('offset', '0'))
+    offset_arg = request.args.get('offset', '0')
+    try:
+        offset = int(offset_arg)
+    except ValueError:
+        return None, 'bad offset "{0}": should be specified as an integer'.format(offset_arg), 400
 
     modeName, value = getMode()
     if modeName is None:
