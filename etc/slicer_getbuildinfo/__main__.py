@@ -13,6 +13,11 @@ from slicer_download import (
 
 
 def getRecordsFromDB(dbfile):
+    """Get the records from a SQLite 3.0 database file.
+
+    Returns a list of dictionaries where each dictionary contains the fields
+    and values of a record in the database.
+    """
     with sqlite3.connect(dbfile) as db:
         cursor = db.cursor()
         cursor.execute("select record from _")
@@ -20,6 +25,13 @@ def getRecordsFromDB(dbfile):
 
 
 def midasRecordToDb(r):
+    """Convert a Midas record to a list of fields to insert in a database.
+
+    Returns a list of fields in the order that they should be inserted into
+    the database. The Midas fields include the id (``item_id``), the
+    revision (``revision``), the checkout date (``checkoutdate``),
+    the build date (``date_creation``) and the entire record as a JSON string.
+    """
     try:
         return [int(r['item_id']),
                 int(r['revision']),
@@ -31,6 +43,13 @@ def midasRecordToDb(r):
 
 
 def girderRecordToDb(r):
+    """Convert a Girder record to a list of fields to insert in a database.
+
+    Returns a list of fields in the order that they should be inserted
+    into the database. The Girder fields include the id (``_id``), the
+    revision (``meta.revsion``), the checkout date (``created``), the
+    build date (``meta.build_date``) and the entire record as a JSON string.
+    """
     return [r['_id'],
             int(r['meta']['revision']),
             r['created'],
@@ -39,6 +58,12 @@ def girderRecordToDb(r):
 
 
 def recordToDb(r):
+    """Convert a record to a list of fields to insert in a database.
+
+    Returns a list of fields in the order that they should be inserted into
+    the database. The specific conversion function depends on the server API
+    being used (see :func:`getServerAPI`).
+    """
     return {
         ServerAPI.Midas_v1: midasRecordToDb,
         ServerAPI.Girder_v1: girderRecordToDb,
@@ -48,6 +73,11 @@ def recordToDb(r):
 def applicationPackageToIDs(records):
     """Return a dictionnary of ``<revision>-<os>-<arch>`` (uniquely identifying an application package)
     to list of ``(itemId, folderId)`` tuples.
+
+    This function returns a dictionary containing keys that are uniquely
+    identifying an application package, and values that are a list of tuples
+    containing the itemId and folderId of the corresponding records from a
+    Girder database (see :const:`ServerAPI.Girder_v1`).
     """
     assert getServerAPI() == ServerAPI.Girder_v1
     packages = {}
