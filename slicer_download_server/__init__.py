@@ -160,6 +160,17 @@ def recordFindAllRequest():
 
 
 def getRecordField(record, key):
+    """Return the value of a specific field in the record.
+
+    Given a record and the field key, this function returns the value of the requested field.
+    Depending on the server API used, the key is mapped to a field in the database record.
+    See :func:`recordsMatchingAllOSAndStability` and :func:`getBestMatching`.
+
+    :param record: A dictionary with fields and values.
+    :param key: The field key.
+
+    :return: The value of the field in the record, or None if the field is not present.
+    """
     if getServerAPI() == ServerAPI.Midas_v1:
         if key == 'bitstream_id':
             return record['bitstreams'][0]['bitstream_id']
@@ -186,11 +197,29 @@ def getRecordField(record, key):
 
 
 def getCleanedUpRecord(record):
-    """Return a dictionary generated from a raw database record.
+    """Return a dictionary with, organized, cleaned up and standardized fields.
 
-    It includes new fields and more consistent names.
+    Given a raw database record and depending on the server API used, this function
+    returns a cleaned-up dictionary that includes new fields and more
+    consistent names.
 
-    See :func:`getVersion` and :func:`getLocalBitstreamURL`.
+    The fields included in the cleaned-up dictionary are the following:
+    * 'arch'
+    * 'revision'
+    * 'os'
+    * 'codebase'
+    * 'name'
+    * 'package'
+    * 'build_date'
+    * 'build_date_ymd'
+    * 'checkout_date'
+    * 'checkout_date_ymd'
+    * 'product_name'
+    * 'stability'
+    * 'size'
+    * 'md5'
+    * 'version' (see :func:`getVersion`)
+    * 'download_url' (see :func:`getLocalBitstreamURL`)
     """
     if not record:
         return None
@@ -292,7 +321,19 @@ def getSupportedMode():
 
 
 def recordMatching():
-    """High level function for getting the best record matching specific criteria including OS."""
+    """Return the best record that matches specific criteria.
+
+    Given the parameters in the HTTP request (``flask.request``), this function gets revision records from
+    the database (see :func:`getRecordsFromDb`) and returns the best record that matches the provided criteria.
+
+    The criteria depend on the values of the `os`, `offset`, `stability`, and `mode`
+    parameters passed in the HTTP request and are used to filter the database records using :func:`getBestMatching`.
+
+    :return: A tuple with three elements:
+            - The best record matching the criteria, if one exists.
+            - An error message, if applicable.
+            - An HTTP status code.
+    """
     request = flask.request
     revisionRecords = getRecordsFromDb()
 
@@ -328,8 +369,24 @@ def recordMatching():
 
 
 def recordsMatchingAllOSAndStability():
-    """High level function returning all records matching search criteria,
-    for all OS and stability choices."""
+    """Return all records that match the search criteria, for all OS and stability choices.
+
+    Given the parameters in the HTTP request (``flask.request``), this function gets revision records from
+    the database (see :func:`getRecordsFromDb`) and returns all records that match the provided criteria.
+
+    The criteria depend on the values of the `os`, `offset`, `stability`, and `mode`
+    parameters passed in the HTTP request. If any of these parameters are not specified, the default
+    values are:
+    - `os`: all :const:`SUPPORTED_OS_CHOICES`.
+    - `offset`: 0.
+    - `stability`: all :const:`STABILITY_CHOICES`.
+    - `mode`: See :func:`getSupportedMode` and :func:`getMode`.
+
+    :return: A tuple with three elements:
+             - All records matching the criteria, if any exist.
+             - An error message, if applicable.
+             - An HTTP status code.
+    """
 
     request = flask.request
     revisionRecords = getRecordsFromDb()
@@ -371,24 +428,58 @@ def recordsMatchingAllOSAndStability():
     return results, None, 200
 
 
-# query matching functions
 def matchOS(operatingSystem):
+    """Return a lambda function that expects a record as a parameter and returns True if the record
+    matches the provided operating system.
+
+    :param operatingSystem: operating system to be matched. It should be one :const:`SUPPORTED_OS_CHOICES`.
+
+    :return: a callable lambda function
+    """
     return lambda record: getRecordField(record, 'os') == operatingSystem
 
 
 def matchExactRevision(rev):
+    """Return a lambda function that expects a record as a parameter and returns True if the
+    record matches the provided revision exactly.
+
+    The lambda function is used as a predicate when the mode passed to :func:`getBestMatching`
+    is "revision" (see :const:`MODE_CHOICES`).
+
+    :param rev: revision to be matched
+
+    :return: a callable lambda function
+    """
     def match(record):
         return int(rev) == int(getRecordField(record, 'revision'))
     return match
 
 
 def matchClosestRevision(rev):
+    """Return a lambda function that expects a record as a parameter and returns True if the
+    provided revision is greater than or equal to the one associated with the record.
+
+    The lambda function is used as a predicate when the mode passed to :func:`getBestMatching`
+    is "closest-revision" (see :const:`MODE_CHOICES`).
+
+    :param rev: revision to be matched
+
+    :return: a callable lambda function
+    """
     def match(record):
         return int(rev) >= int(getRecordField(record, 'revision'))
     return match
 
 
 def matchDate(dt, dateType):
+    """Return a lambda function that expects a record as a parameter and returns True if the
+    provided date is greater than the record date of the specified date type.
+
+    :param dt: date to be matched
+    :param dateType: type of the date to be matched. It should be one of the date mode in :const:`MODE_CHOICES`.
+
+    :return: a callable lambda function
+    """
     def match(record):
         if dateType == 'date':
             dateString = getRecordField(record, 'date_creation')
@@ -402,6 +493,18 @@ def matchDate(dt, dateType):
 
 
 def matchVersion(version):
+    """Return a lambda function that expects a record as a parameter and returns True if
+    the record version matches the provided one.
+
+    The record version is retrieved using :func:`getVersion`.
+
+    The lambda function is used as a predicate when the mode passed to :func:`getBestMatching`
+    is "version" (see :const:`MODE_CHOICES`).
+
+    :param version: version to be matched
+
+    :return: a callable lambda function
+    """
     def match(record):
         record_version = getVersion(record)
         if not record_version:
@@ -416,6 +519,22 @@ def matchVersion(version):
 
 
 def matchStability(stability):
+    """Return a lambda function that expects a record as a parameter and returns True if the provided
+    stability matches the provided stability.
+
+    A given record matches the "nightly" stability if its submissiontype is "nightly".
+
+    A given record matches the "release" stability under these two conditions:
+    * its "release" field has been set
+    * its "pre_release" field does not evaluate to True
+
+    A record is considered to be a pre-release only if its "pre_release" has been set and evaluates
+    to True (see :func:`slicer_download.toBool`).
+
+    :param stability: stability to be matched. It should be one of the supported choices in :const:`STABILITY_CHOICES`.
+
+    :return: a callable lambda function
+    """
     if stability == 'nightly':
         return lambda record: getRecordField(record, 'submissiontype') == 'nightly'
     if stability == 'release':
@@ -423,12 +542,9 @@ def matchStability(stability):
 
     return lambda record: True
 
-# composite field getters
-
+# regex patterns for extracting version information.
 # this looks ugly because we need to be able to accept versions like:
 # 4.5.0, 4.5.0-1, 4.5.0-rc2, 4.5.0-gamma, and so forth
-
-
 VersionWithDateRE = re.compile(r'^[A-z]+-([-\d.a-z]+)-(\d{4}-\d{2}-\d{2})')
 VersionRE = re.compile(r'^[A-z]+-([-\d.a-z]+)-(macosx|linux|win+)')
 VersionFullRE = re.compile(r'^([-\d.a-z]+)-(\d{4}-\d{2}-\d{2})')
@@ -436,22 +552,26 @@ VersionXyzRE = re.compile(r'^(\d+\.\d+\.\d+)$')
 
 
 def getVersion(record):
-    """Extract version information from record.
+    """Extract version information from the given record.
 
-    If ``release`` key is found, returns associated value.
+    If the ``release`` key is found, returns the associated value.
 
-    Otherwise it returns the version extracted from the value associated
-    with the ``name`` key for :const:`ServerAPI.Midas_v1` or the ``meta.version`
+    Otherwise, it returns the version extracted from the value associated
+    with the ``name`` key for :const:`ServerAPI.Midas_v1` or the ``meta.version``
     key for :const:`ServerAPI.Girder_v1`.
 
-    For :const:`ServerAPI.Midas_v1`, extraction of the version is attempted using
-    first :const:`VersionWithDateRE` and then :const:`VersionRE`.
+    For :const:`ServerAPI.Midas_v1`, version extraction is attempted using
+    first the :const:`VersionWithDateRE` pattern and then the :const:`VersionRE`
+    pattern.
 
-    For :const:`ServerAPI.Girder_v1`, extraction of the version is attempted using
-    first :const:`VersionFullRE` and then :const:`VersionXyzRE`.
+    For :const:`ServerAPI.Girder_v1`, version extraction is attempted using
+    first the :const:`VersionFullRE` pattern and then the :const:`VersionXyzRE`
+    pattern.
 
-    If value associated with the selected key does not match any of the regular
-    expressions, it returns ``None``.
+    If the value associated with the selected key does not match any of the
+    regular expressions, it returns ``None``.
+
+    See :func:`getRecordField`.
     """
     if getRecordField(record, 'release'):
         return getRecordField(record, 'release')
@@ -485,7 +605,48 @@ def allPass(predlist):
 
 
 def getBestMatching(revisionRecords, operatingSystem, stability, mode, modeArg, offset):
-    """Return best matching record.
+    """Return the best matching record based on the provided criteria.
+
+    Given a set of revision records, this function returns the best matching record for the provided
+    operating system, stability, mode, mode argument, and offset.
+
+    The parameters that control the matching process are:
+    * `operatingSystem`: the name of the operating system to match (see :const:`SUPPORTED_OS_CHOICES` and :func:`matchOS`).
+    * `stability`: the stability level to match (see :const:`STABILITY_CHOICES` and :func:`matchStability`).
+    * `mode`: the matching mode to use (see :const:`MODE_CHOICES`).
+    * `modeArg`: the argument to use for the selected matching mode (e.g., the version string or revision number).
+    * `offset`: the offset to use when selecting a matching record (e.g., to choose a different revision based on its order).
+
+    The matching process is performed by creating a list of predicate functions based on the provided criteria
+    using various functions, which are listed below along with their associated modes:
+
+    +------------------------------+---------------------------+
+    | Predicate function           | Modes                     |
+    +==============================+===========================+
+    | :func:`matchOS`              | `version`,                |
+    |                              | `closest-revision`,       |
+    |                              | `revision`,               |
+    |                              | `date`,                   |
+    |                              | `checkout-date`           |
+    +------------------------------+---------------------------+
+    | :func:`matchStability`       | `version`,                |
+    |                              | `closest-revision`,       |
+    |                              | `revision`,               |
+    |                              | `date`,                   |
+    |                              | `checkout-date`           |
+    +------------------------------+---------------------------+
+    | :func:`matchVersion`         | `version`                 |
+    +------------------------------+---------------------------+
+    | :func:`matchExactRevision`   | `revision`                |
+    +------------------------------+---------------------------+
+    | :func:`matchClosestRevision` | `closest-revision`        |
+    +------------------------------+---------------------------+
+    | :func:`matchDate`            | `date`, `checkout-date`   |
+    +------------------------------+---------------------------+
+
+    The predicate functions are combined into a single matcher function using :func:`allPass`, which is used to discard irrelevant records.
+
+    Returns the best matching record, or None if no record matches the provided criteria.
     """
     osRecords = list(filter(matchOS(operatingSystem), revisionRecords))
 
