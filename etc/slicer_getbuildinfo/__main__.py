@@ -47,7 +47,7 @@ def girderRecordToDb(r):
 
     Returns a list of fields in the order that they should be inserted
     into the database. The Girder fields include the id (``_id``), the
-    revision (``meta.revsion``), the checkout date (``created``), the
+    revision (``meta.revision``), the checkout date (``created``), the
     build date (``meta.build_date``) and the entire record as a JSON string.
     """
     return [r['_id'],
@@ -71,7 +71,7 @@ def recordToDb(r):
 
 
 def applicationPackageToIDs(records):
-    """Return a dictionnary of ``<revision>-<os>-<arch>`` (uniquely identifying an application package)
+    """Return a dictionary of ``<revision>-<os>-<arch>`` (uniquely identifying an application package)
     to list of ``(itemId, folderId)`` tuples.
 
     This function returns a dictionary containing keys that are uniquely
@@ -112,7 +112,7 @@ def computeContentChecksum(algo, content):
 
 
 def displayDuplicateDrafts(records):
-    """Display table of duplicate ``<revision>-<os>-<arch>`` and correponding draft folder URLs
+    """Display table of duplicate ``<revision>-<os>-<arch>`` and corresponding draft folder URLs
     and draft item IDS.
 
     Entries of the table are organized using the headers `<revision>-<os>-<arch>`, `release`, `itemId`
@@ -176,7 +176,7 @@ def main():
     if args.remove_itemids:
         for itemId in args.remove_itemids.split(","):
             if len(itemId) != 24:
-                argparser.error("ID of item to eclude is expected to be 24 characters")
+                argparser.error("ID of item to exclude is expected to be 24 characters")
             itemIdsToRemove.add(itemId)
 
     if dbfile is None:
