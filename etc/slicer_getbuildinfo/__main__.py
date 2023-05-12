@@ -93,6 +93,24 @@ def applicationPackageToIDs(records):
     return {key: item_ids for key, item_ids in packages.items()}
 
 
+def computeContentChecksum(algo, content):
+    """Compute digest of ``content`` using ``algo``.
+
+    Supported hashing algorithms are SHA256, SHA512, and MD5.
+
+    :raises ValueError: if algo is unknown.
+    """
+    import hashlib
+
+    if algo not in ['SHA256', 'SHA512', 'MD5']:
+        msg = f"unsupported hashing algorithm {algo}"
+        raise ValueError(msg)
+
+    digest = hashlib.new(algo)
+    digest.update(content)
+    return digest.hexdigest()
+
+
 def displayDuplicateDrafts(records):
     """Display table of duplicate ``<revision>-<os>-<arch>`` and correponding draft folder URLs
     and draft item IDS.
@@ -179,9 +197,16 @@ def main():
                         build_date TEXT,
                         record TEXT)'''.format(primary_key_type=primary_key_type))
 
+            # Since when using the `insert or replace into` statement below, all records are effectively
+            # replaced independently of their value, the `cursor.rowcount` property does not allow to
+            # know the number of records effectively updated.
+            #
+            # To address this, we compute the checksum of all records before and after and use that to
+            # infer the number of record added and updated.
             cursor = db.cursor()
-            cursor.execute("select count(*) from _")
-            numberOfRowsBefore = cursor.fetchone()[0]
+            cursor.execute("select item_id, record from _")
+            checksumOfRecordsBefore = {row[0]: computeContentChecksum("SHA256", row[1].encode()) for row in cursor.fetchall()}
+            numberOfRowsBefore = len(checksumOfRecordsBefore)
 
             cursor = db.cursor()
             cursor.executemany('''insert or replace into _
@@ -193,7 +218,16 @@ def main():
             cursor.execute("select count(*) from _")
             numberOfRowsAfter = cursor.fetchone()[0]
 
+            cursor = db.cursor()
+            cursor.execute("select item_id, record from _")
+            recordsChecksumAfter= {
+                row[0]: computeContentChecksum("SHA256", row[1].encode()) for row in cursor.fetchall()
+                if row[0] in checksumOfRecordsBefore
+            }
+            numberOfRowsModified = len(set(recordsChecksumAfter.values()) - set(checksumOfRecordsBefore.values()))
+
             print(f"Added {numberOfRowsAfter - numberOfRowsBefore} rows")
+            print(f"Updated {numberOfRowsModified} rows")
 
             db.commit()
 
