@@ -218,6 +218,7 @@ def getCleanedUpRecord(record):
     * 'stability'
     * 'size'
     * 'md5'
+    * 'sha512'
     * 'version' (see :func:`getVersion`)
     * 'download_url' (see :func:`getLocalBitstreamURL`)
     """
@@ -268,6 +269,7 @@ def getCleanedUpRecord(record):
         cleaned['stability'] = 'release' if getRecordField(record, 'release') else 'nightly'
         cleaned['size'] = record['size']
         cleaned['md5'] = None  # Not supported
+        cleaned['sha512'] = record['meta'].get('sha512', None)
         cleaned['version'] = getVersion(record)
         cleaned['download_url'] = getLocalBitstreamURL(record)
 
