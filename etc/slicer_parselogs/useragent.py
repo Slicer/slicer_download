@@ -32,6 +32,25 @@ def pretty_os(rec):
                                       os['patch'])
 
 
+def parse_useragent(user_agent):
+    ua_rec = user_agent_parser.Parse(user_agent)
+    if not ua_rec:
+        return None
+    return {
+        "useragent": user_agent,
+        "browser_type": get_browser_type_compat(ua_rec),
+        "ua_name": ua_rec['user_agent']['family'],
+        "os_name": pretty_os(ua_rec),
+        "os_family": ua_rec['os']['family']}
+
+
+def add_useragent_info_row(db, fields):
+    db.execute("""insert or replace into uainfo(useragent,
+                browser_type, ua_name, os_name, os_family)
+                values(:useragent, :browser_type, :ua_name, :os_name, :os_family)""",
+                fields)
+
+
 def add_useragent_info(db):
     print("populating 'uainfo' table")
     ua_completed = set()
@@ -41,18 +60,10 @@ def add_useragent_info(db):
         user_agent = ua[0]
         if user_agent in ua_completed:
             continue
-        ua_rec = user_agent_parser.Parse(user_agent)
-        if not ua_rec:
+        ua_fields = parse_useragent(user_agent);
+        if ua_fields is None:
             continue
-
-        db.execute("""insert or replace into uainfo(useragent,
-                    browser_type, ua_name, os_name, os_family) 
-                    values(?, ?, ?, ?, ?)""",
-                    (user_agent,
-                     get_browser_type_compat(ua_rec),
-                     ua_rec['user_agent']['family'],
-                     pretty_os(ua_rec),
-                     ua_rec['os']['family']))
+        add_useragent_info_row(db, ua_fields)
         ua_completed.add(user_agent)
         db.commit() # commit per record in case we exit
     progress_end()
