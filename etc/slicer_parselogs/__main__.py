@@ -27,9 +27,11 @@ def main():
     argparser = argparse.ArgumentParser(description='Process Slicer4 download information.')
     argparser.add_argument('--db', required=True, help="sqlite stats database")
     argparser.add_argument('--geoip', required=False, help="geoip data file")
-    argparser.add_argument('--statsdata', required=True, help="slicer stats output")
+    argparser.add_argument('--statsdata', required=False, help="slicer stats output")
     argparser.add_argument('--only-statsdata', action='store_true', help="skip database update and only generate stats output")
     argparser.add_argument('--skip-records-fetch', action='store_true', help="skip fetching of records from packages server")
+    argparser.add_argument('--update-useragent-table', action='store_true', help="update useragent table entries")
+    argparser.add_argument('--dry-run', action='store_true', help="simulate database update")
     argparser.add_argument('filenames', nargs="*")
     args = argparser.parse_args()
     dbname = args.db
@@ -45,8 +47,13 @@ def main():
             generate_slicer_stats(db, statsdata)
         sys.exit(0)
 
+    if args.update_useragent_table:
+        useragent.update_useragent_info(dbname, dry_run=args.dry_run)
+        sys.exit(0)
+
     required_args = [
         "--geoip",
+        "--statsdata",
     ]
 
     if any([vars(args).get(arg[2:]) is None for arg in required_args]):

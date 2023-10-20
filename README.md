@@ -40,6 +40,7 @@ This section describes main files and directories available in this repository.
     | `kill`                            | Shell script for killing the download Flask web application. |
     | `start`                           | Shell script for starting the download Flask web application. |
     | `stop`                            | Shell script for stopping the download Flask web application. |
+    | `update-database-useragent.sh`    | Update `uainfo` table re-parsing useragent strings. |
 
 [branch-download-slicer-org]: https://github.com/Slicer/slicer.org/tree/download-slicer-org
 
