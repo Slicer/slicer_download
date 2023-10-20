@@ -52,5 +52,6 @@ exec "${PYTHON_EXECUTABLE}" "${ROOT_DIR}/etc/slicer_parselogs" \
     --db ${SLICER_DOWNLOAD_STATS_DB_FILE} \
     --geoip ${GEOIP_DB_FILE} \
     --statsdata ${SLICER_DOWNLOAD_STATS_DATA_FILE} \
+    $* \
     ${SLICER_DOWNLOAD_ACCESS_LOGS} \
     ${EXTRALOGS}
