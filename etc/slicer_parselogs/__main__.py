@@ -26,8 +26,9 @@ def generate_slicer_stats(db, slicer_stats_data_file):
 def main():
     argparser = argparse.ArgumentParser(description='Process Slicer4 download information.')
     argparser.add_argument('--db', required=True, help="sqlite stats database")
-    argparser.add_argument('--geoip', required=True, help="geoip data file")
+    argparser.add_argument('--geoip', required=False, help="geoip data file")
     argparser.add_argument('--statsdata', required=True, help="slicer stats output")
+    argparser.add_argument('--only-statsdata', action='store_true', help="skip database update and only generate stats output")
     argparser.add_argument('--skip-records-fetch', action='store_true', help="skip fetching of records from packages server")
     argparser.add_argument('filenames', nargs="*")
     args = argparser.parse_args()
@@ -35,6 +36,21 @@ def main():
     geoip_filename = args.geoip
     filenames = args.filenames
     statsdata = args.statsdata
+
+    if args.only_statsdata:
+        if statsdata is None:
+            argparser.error('with --only-statsdata, the following arguments are required: --statsdata')
+
+        with openDb(dbname) as db:
+            generate_slicer_stats(db, statsdata)
+        sys.exit(0)
+
+    required_args = [
+        "--geoip",
+    ]
+
+    if any([vars(args).get(arg[2:]) is None for arg in required_args]):
+        argparser.error(f"the following arguments are required: {', '.join(required_args)}")
 
     with openDb(dbname) as db:
 
