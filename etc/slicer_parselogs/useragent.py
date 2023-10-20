@@ -24,7 +24,7 @@ def get_browser_type_compat(rec):
 
     if family == 'Spider':
         return 'Robot'
-    if family == 'Other':
+    if family == 'Other' or family == "Mac":
         return 'Browser'
     return 'MobileBrowser'
 
