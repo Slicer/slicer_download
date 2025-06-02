@@ -250,12 +250,16 @@ def getCleanedUpRecord(record):
         cleaned['md5'] = record['bitstreams'][0]['md5']
         cleaned['version'] = getVersion(record)
         cleaned['download_url'] = getLocalBitstreamURL(record)
+        cleaned['extensions_browse_url'] = None  # Not supported
 
     if getServerAPI() == ServerAPI.Girder_v1:
 
+        operating_system = record['meta']['os']
+        revision = record['meta']['revision']
+
         cleaned['arch'] = record['meta']['arch']
-        cleaned['revision'] = record['meta']['revision']
-        cleaned['os'] = record['meta']['os']
+        cleaned['revision'] = revision
+        cleaned['os'] = operating_system
         cleaned['codebase'] = None  # Not supported
         cleaned['name'] = record['name']
         cleaned['package'] = None  # Not supported
@@ -272,6 +276,7 @@ def getCleanedUpRecord(record):
         cleaned['sha512'] = record['meta'].get('sha512', None)
         cleaned['version'] = getVersion(record)
         cleaned['download_url'] = getLocalBitstreamURL(record)
+        cleaned['extensions_browse_url'] = f"https://extensions.slicer.org/catalog/All/{revision}/{operating_system}"
 
     return cleaned
 
