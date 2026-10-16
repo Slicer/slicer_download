@@ -19,6 +19,20 @@ SUPPORTED_OS_CHOICES = (
     'win',
     'linux'
 )
+ARCH_CHOICES = (
+    'amd64',
+    'arm64'
+)
+DEFAULT_ARCH = 'amd64'
+
+# (os, arch) pairs listed on the download page. Each pair is exposed under the
+# key returned by :func:`getPlatformKey` (e.g. "macosx" or "macosx_arm64").
+DOWNLOAD_PAGE_PLATFORMS = (
+    ('macosx', 'amd64'),
+    ('macosx', 'arm64'),
+    ('win', 'amd64'),
+    ('linux', 'amd64')
+)
 STABILITY_CHOICES = (
     'release',
     'nightly',
@@ -174,12 +188,16 @@ def getRecordField(record, key):
     if getServerAPI() == ServerAPI.Midas_v1:
         if key == 'bitstream_id':
             return record['bitstreams'][0]['bitstream_id']
+        elif key == 'arch':
+            return record.get('arch') or DEFAULT_ARCH
         else:
             return record[key]
 
     elif getServerAPI() == ServerAPI.Girder_v1:
         if key == 'os':
             return record['meta']['os']
+        elif key == 'arch':
+            return record['meta'].get('arch', DEFAULT_ARCH)
         elif key == 'revision':
             return record['meta']['revision']
         elif key == 'date_creation':
@@ -257,7 +275,7 @@ def getCleanedUpRecord(record):
         operating_system = record['meta']['os']
         revision = record['meta']['revision']
 
-        cleaned['arch'] = record['meta']['arch']
+        cleaned['arch'] = getRecordField(record, 'arch')
         cleaned['revision'] = revision
         cleaned['os'] = operating_system
         cleaned['codebase'] = None  # Not supported
@@ -276,7 +294,8 @@ def getCleanedUpRecord(record):
         cleaned['sha512'] = record['meta'].get('sha512', None)
         cleaned['version'] = getVersion(record)
         cleaned['download_url'] = getLocalBitstreamURL(record)
-        cleaned['extensions_browse_url'] = f"https://extensions.slicer.org/catalog/All/{revision}/{operating_system}"
+        cleaned['extensions_browse_url'] = (
+            f"https://extensions.slicer.org/catalog/All/{revision}/{operating_system}/{cleaned['arch']}")
 
     return cleaned
 
@@ -333,8 +352,9 @@ def recordMatching():
     Given the parameters in the HTTP request (``flask.request``), this function gets revision records from
     the database (see :func:`getRecordsFromDb`) and returns the best record that matches the provided criteria.
 
-    The criteria depend on the values of the `os`, `offset`, `stability`, and `mode`
+    The criteria depend on the values of the `os`, `arch`, `offset`, `stability`, and `mode`
     parameters passed in the HTTP request and are used to filter the database records using :func:`getBestMatching`.
+    If not specified, `arch` defaults to :const:`DEFAULT_ARCH`.
 
     :return: A tuple with three elements:
             - The best record matching the criteria, if one exists.
@@ -347,6 +367,10 @@ def recordMatching():
     operatingSystem = request.args.get('os')  # may generate BadRequest if not present
     if operatingSystem not in SUPPORTED_OS_CHOICES:
         return None, 'unknown os "{0}": should be one of {1}'.format(operatingSystem, SUPPORTED_OS_CHOICES), 400
+
+    arch = request.args.get('arch', DEFAULT_ARCH)
+    if arch not in ARCH_CHOICES:
+        return None, 'unknown arch "{0}": should be one of {1}'.format(arch, ARCH_CHOICES), 400
 
     offset_arg = request.args.get('offset', '0')
     try:
@@ -366,7 +390,7 @@ def recordMatching():
     if stability not in STABILITY_CHOICES:
         return None, "bad stability {0}: should be one of {1}".format(stability, STABILITY_CHOICES), 400
 
-    record = getBestMatching(revisionRecords, operatingSystem, stability, modeName, value, offset)
+    record = getBestMatching(revisionRecords, operatingSystem, arch, stability, modeName, value, offset)
     cleaned = getCleanedUpRecord(record)
 
     if not cleaned:
@@ -381,16 +405,18 @@ def recordsMatchingAllOSAndStability():
     Given the parameters in the HTTP request (``flask.request``), this function gets revision records from
     the database (see :func:`getRecordsFromDb`) and returns all records that match the provided criteria.
 
-    The criteria depend on the values of the `os`, `offset`, `stability`, and `mode`
+    The criteria depend on the values of the `os`, `arch`, `offset`, `stability`, and `mode`
     parameters passed in the HTTP request. If any of these parameters are not specified, the default
     values are:
     - `os`: all :const:`SUPPORTED_OS_CHOICES`.
+    - `arch`: all architectures listed for the selected OS in :const:`DOWNLOAD_PAGE_PLATFORMS`.
     - `offset`: 0.
     - `stability`: all :const:`STABILITY_CHOICES`.
     - `mode`: See :func:`getSupportedMode` and :func:`getMode`.
 
     :return: A tuple with three elements:
-             - All records matching the criteria, if any exist.
+             - All records matching the criteria, if any exist, keyed by platform (see :func:`getPlatformKey`)
+               and then by stability.
              - An error message, if applicable.
              - An HTTP status code.
     """
@@ -417,6 +443,13 @@ def recordsMatchingAllOSAndStability():
     else:
         operatingSystems = SUPPORTED_OS_CHOICES
 
+    if "arch" in request.args:
+        if request.args['arch'] not in ARCH_CHOICES:
+            return None, 'unknown arch "{0}": should be one of {1}'.format(request.args['arch'], ARCH_CHOICES), 400
+        platforms = [(operatingSystem, request.args['arch']) for operatingSystem in operatingSystems]
+    else:
+        platforms = [platform for platform in DOWNLOAD_PAGE_PLATFORMS if platform[0] in operatingSystems]
+
     if "stability" in request.args:
         if request.args['stability'] not in STABILITY_CHOICES:
             return None, "bad stability {0}: should be one of {1}".format(request.args['stability'], STABILITY_CHOICES), 400
@@ -425,25 +458,39 @@ def recordsMatchingAllOSAndStability():
         stabilities = list(set(STABILITY_CHOICES) - set(['any']))
 
     results = {}
-    for operatingSystem in operatingSystems:
-        osResult = {}
+    for operatingSystem, arch in platforms:
+        platformResult = {}
         for stability in stabilities:
-            record = getBestMatching(revisionRecords, operatingSystem, stability, modeName, value, offset)
-            osResult[stability] = getCleanedUpRecord(record)
-        results[operatingSystem] = osResult
+            record = getBestMatching(revisionRecords, operatingSystem, arch, stability, modeName, value, offset)
+            platformResult[stability] = getCleanedUpRecord(record)
+        results[getPlatformKey(operatingSystem, arch)] = platformResult
 
     return results, None, 200
 
 
-def matchOS(operatingSystem):
+def getPlatformKey(operatingSystem, arch):
+    """Return the key identifying an (os, arch) pair in the results of :func:`recordsMatchingAllOSAndStability`.
+
+    The default architecture maps to the bare OS name (e.g. "macosx") for backward compatibility with
+    existing consumers of the download page template and ``/findall``. Other architectures are suffixed
+    with an underscore so that keys may be accessed using Jinja2 attribute syntax (e.g. ``R.macosx_arm64``).
+    """
+    if arch == DEFAULT_ARCH:
+        return operatingSystem
+    return '{0}_{1}'.format(operatingSystem, arch)
+
+
+def matchOS(operatingSystem, arch):
     """Return a lambda function that expects a record as a parameter and returns True if the record
-    matches the provided operating system.
+    matches the provided operating system and architecture.
 
     :param operatingSystem: operating system to be matched. It should be one :const:`SUPPORTED_OS_CHOICES`.
+    :param arch: architecture to be matched. It should be one :const:`ARCH_CHOICES`.
 
     :return: a callable lambda function
     """
-    return lambda record: getRecordField(record, 'os') == operatingSystem
+    return lambda record: (
+        getRecordField(record, 'os') == operatingSystem and getRecordField(record, 'arch') == arch)
 
 
 def matchExactRevision(rev):
@@ -611,7 +658,7 @@ def allPass(predlist):
     return evaluate
 
 
-def getBestMatching(revisionRecords, operatingSystem, stability, mode, modeArg, offset):
+def getBestMatching(revisionRecords, operatingSystem, arch, stability, mode, modeArg, offset):
     """Return the best matching record based on the provided criteria.
 
     Given a set of revision records, this function returns the best matching record for the provided
@@ -619,6 +666,7 @@ def getBestMatching(revisionRecords, operatingSystem, stability, mode, modeArg, 
 
     The parameters that control the matching process are:
     * `operatingSystem`: the name of the operating system to match (see :const:`SUPPORTED_OS_CHOICES` and :func:`matchOS`).
+    * `arch`: the architecture to match (see :const:`ARCH_CHOICES` and :func:`matchOS`).
     * `stability`: the stability level to match (see :const:`STABILITY_CHOICES` and :func:`matchStability`).
     * `mode`: the matching mode to use (see :const:`MODE_CHOICES`).
     * `modeArg`: the argument to use for the selected matching mode (e.g., the version string or revision number).
@@ -655,7 +703,7 @@ def getBestMatching(revisionRecords, operatingSystem, stability, mode, modeArg, 
 
     Returns the best matching record, or None if no record matches the provided criteria.
     """
-    osRecords = list(filter(matchOS(operatingSystem), revisionRecords))
+    osRecords = list(filter(matchOS(operatingSystem, arch), revisionRecords))
 
     selectors = [matchStability(stability)]
 

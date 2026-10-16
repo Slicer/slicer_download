@@ -4,7 +4,7 @@ from . import countries
 
 ''' bitstream[id] = {
      os: {mac,win,linux}
-     arch: {amd64,i386}
+     arch: {amd64,arm64,i386}
      bits: {32,64} as integers
      version: (e.g., "4.1.0")
      stable: {0,1}
@@ -47,7 +47,8 @@ EUCountryInfo = ['European Union', 'Western Europe', 'Europe']
 
 BitTable = {
     'i386': 32,
-    'amd64': 64
+    'amd64': 64,
+    'arm64': 64
 }
 
 
