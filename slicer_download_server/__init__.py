@@ -48,6 +48,9 @@ MODE_CHOICES = (
 
 LOCAL_BITSTREAM_PATH = '/bitstream'
 
+# Where /install.sh and /install.ps1 redirect to. See :func:`redirectToInstallerScript`.
+INSTALLER_SCRIPTS_URL = 'https://raw.githubusercontent.com/Slicer/Slicer/main/Utilities/Scripts/SlicerInstallers'
+
 app = flask.Flask(__name__, static_folder='assets')
 app.config.from_envvar('SLICER_DOWNLOAD_SERVER_CONF')
 
@@ -106,6 +109,27 @@ def redirectToSourceBitstream(bitstreamId):
     See :func:`getSourceDownloadURL`.
     """
     return flask.redirect(getSourceDownloadURL(bitstreamId))
+
+
+@app.route('/install.sh')
+@app.route('/install.ps1')
+def redirectToInstallerScript():
+    """Redirect to the one-line installer script of the same name.
+
+    The scripts are maintained in the Slicer repository, so that::
+
+        curl -fsSL https://download.slicer.org/install.sh | sh             # Linux, macOS
+        powershell -c "irm https://download.slicer.org/install.ps1 | iex"  # Windows
+
+    always run the version on its ``main`` branch. Both ``curl -L`` and ``irm`` follow
+    the redirect.
+
+    Set ``SLICER_DOWNLOAD_INSTALLER_SCRIPTS_URL`` to redirect elsewhere, for example
+    to a fork when testing changes to the scripts on a staging server.
+    """
+    scripts_url = os.environ.get('SLICER_DOWNLOAD_INSTALLER_SCRIPTS_URL', INSTALLER_SCRIPTS_URL)
+    script = flask.request.path.rsplit('/', 1)[-1]
+    return flask.redirect('/'.join([scripts_url.rstrip('/'), script]))
 
 
 @app.route('/download')
