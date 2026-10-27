@@ -106,6 +106,7 @@ associated with the `./bin/start` script.
 | `SLICER_DOWNLOAD_DB_FILE` | Path to the database file containing download records. | `./var/slicer-<server_api>-records.sqlite` or `./etc/fallback/slicer-<SLICER_DOWNLOAD_SERVER_API>-records.sqlite` if `SLICER_DOWNLOAD_DB_FALLBACK` is `True`. |
 | `SLICER_DOWNLOAD_URL` | URL of the Slicer download server. | `http://${UWSGI_HTTP_HOST}:<UWSGI_HTTP_PORT>` |
 | `SLICER_DOWNLOAD_SERVER_API` | Supported values are `Girder_v1` or `Midas_v1`. | `Midas_v1` |
+| `SLICER_DOWNLOAD_INSTALLER_SCRIPTS_URL` | Base URL that `/install.sh` and `/install.ps1` redirect to, followed by the script name. | `https://raw.githubusercontent.com/Slicer/Slicer/main/Utilities/Scripts/SlicerInstallers` |
 
 ## History
 
